@@ -21,10 +21,12 @@ export interface Challenge {
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'
   xpReward: number
   category: 'Basics' | 'Data Structures' | 'Algorithms' | 'Web Development' | 'Machine Learning'
-  code: string
-  testCases: TestCase[]
+  starterCode: string
+  expectedOutput: string
+  testCases: Array<{ input: string; output: string }>
   completedBy: string[]
   createdAt: string
+  completed?: boolean
 }
 
 export interface TestCase {

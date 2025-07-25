@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -12,6 +12,7 @@ import {
   Trophy
 } from 'lucide-react'
 import type { Battle } from '@/types/game'
+import { BattleRoom } from '../battle/BattleRoom'
 
 export function BattleArena() {
   const [activeBattles] = useState<Battle[]>([
@@ -25,12 +26,16 @@ export function BattleArena() {
       challenge: {
         id: 'c1',
         title: 'Quick Sort Implementation',
-        description: 'Implement quicksort algorithm',
+        description: 'Implement the quicksort algorithm efficiently and handle edge cases.',
         difficulty: 'Intermediate',
         xpReward: 150,
         category: 'Algorithms',
-        code: '',
-        testCases: [],
+        starterCode: '# Quick Sort Challenge\n# Implement the quicksort algorithm\n\ndef quicksort(arr):\n    # TODO: Implement quicksort algorithm\n    # Base case: arrays with 0 or 1 element are already sorted\n    if len(arr) <= 1:\n        return arr\n    \n    # Your code here\n    pivot = arr[len(arr) // 2]\n    left = []\n    middle = []\n    right = []\n    \n    # Partition the array\n    # Your implementation here\n    \n    return quicksort(left) + middle + quicksort(right)\n\n# Test the function\ntest_array = [64, 34, 25, 12, 22, 11, 90]\nsorted_array = quicksort(test_array)\nprint("Sorted array:", sorted_array)',
+        expectedOutput: 'Sorted array: [11, 12, 22, 25, 34, 64, 90]',
+        testCases: [
+          { input: '', output: 'Sorted array: [11, 12, 22, 25, 34, 64, 90]' },
+          { input: '', output: 'Quicksort working correctly' }
+        ],
         completedBy: [],
         createdAt: new Date().toISOString()
       },
@@ -47,12 +52,16 @@ export function BattleArena() {
       challenge: {
         id: 'c2',
         title: 'Binary Tree Traversal',
-        description: 'Implement tree traversal methods',
+        description: 'Implement all three tree traversal methods: inorder, preorder, and postorder.',
         difficulty: 'Advanced',
         xpReward: 200,
         category: 'Data Structures',
-        code: '',
-        testCases: [],
+        starterCode: '# Binary Tree Traversal Challenge\n# Implement tree traversal methods\n\nclass TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\ndef inorder_traversal(root):\n    # TODO: Implement inorder traversal (left, root, right)\n    result = []\n    # Your code here\n    return result\n\ndef preorder_traversal(root):\n    # TODO: Implement preorder traversal (root, left, right)\n    result = []\n    # Your code here\n    return result\n\ndef postorder_traversal(root):\n    # TODO: Implement postorder traversal (left, right, root)\n    result = []\n    # Your code here\n    return result\n\n# Test the functions\nroot = TreeNode(1)\nroot.left = TreeNode(2)\nroot.right = TreeNode(3)\nroot.left.left = TreeNode(4)\nroot.left.right = TreeNode(5)\n\nprint("Inorder:", inorder_traversal(root))\nprint("Preorder:", preorder_traversal(root))\nprint("Postorder:", postorder_traversal(root))',
+        expectedOutput: 'Inorder: [4, 2, 5, 1, 3]\nPreorder: [1, 2, 4, 5, 3]\nPostorder: [4, 5, 2, 3, 1]',
+        testCases: [
+          { input: '', output: 'Inorder: [4, 2, 5, 1, 3]' },
+          { input: '', output: 'Preorder: [1, 2, 4, 5, 3]' }
+        ],
         completedBy: [],
         createdAt: new Date().toISOString()
       },
@@ -64,7 +73,10 @@ export function BattleArena() {
         { playerId: '4', username: 'DevHunter', score: 45, rank: 4 }
       ]
     }
-  ])
+  ]);
+
+  const [selectedBattle, setSelectedBattle] = useState<Battle | null>(null);
+  const [inBattleRoom, setInBattleRoom] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -83,6 +95,26 @@ export function BattleArena() {
       case 'Expert': return 'text-red-400'
       default: return 'text-gray-400'
     }
+  }
+
+  const handleJoinBattle = (battle: Battle) => {
+    setSelectedBattle(battle);
+    setInBattleRoom(true);
+  };
+
+  const handleExitBattle = () => {
+    setInBattleRoom(false);
+    setSelectedBattle(null);
+  };
+
+  if (inBattleRoom && selectedBattle) {
+    return (
+      <BattleRoom
+        battleId={selectedBattle.id}
+        challenge={selectedBattle.challenge}
+        onExit={handleExitBattle}
+      />
+    );
   }
 
   return (
@@ -140,7 +172,11 @@ export function BattleArena() {
                   <Clock className="w-4 h-4" />
                   <span>Starts in 5 minutes</span>
                 </div>
-                <Button size="sm" className="bg-neon-blue hover:bg-neon-blue/80 text-white">
+                <Button 
+                  size="sm" 
+                  className="bg-neon-blue hover:bg-neon-blue/80 text-white"
+                  onClick={() => handleJoinBattle(battle)}
+                >
                   <Play className="w-4 h-4 mr-1" />
                   Join Battle
                 </Button>
@@ -154,10 +190,25 @@ export function BattleArena() {
                     <div className="w-2 h-2 bg-neon-green rounded-full animate-pulse" />
                     <span>Battle in progress</span>
                   </div>
-                  <Button size="sm" variant="outline" className="border-neon-blue text-neon-blue">
-                    <Eye className="w-4 h-4 mr-1" />
-                    Spectate
-                  </Button>
+                  <div className="flex space-x-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="border-neon-blue text-neon-blue"
+                      onClick={() => handleJoinBattle(battle)}
+                    >
+                      <Eye className="w-4 h-4 mr-1" />
+                      Spectate
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      className="bg-neon-blue hover:bg-neon-blue/80 text-white"
+                      onClick={() => handleJoinBattle(battle)}
+                    >
+                      <Play className="w-4 h-4 mr-1" />
+                      Join Late
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Live Leaderboard */}
